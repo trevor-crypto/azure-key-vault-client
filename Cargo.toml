@@ -1,0 +1,19 @@
+[package]
+name = "azure-key-vault-client"
+description = "Thin sync client for Azure Key Vault"
+version = "0.1.0"
+edition = "2018"
+authors = ["Trevor Arjeski <trevor.arjeski@crypto.com>"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+base64 = "0.13"
+chrono = { version = "0.4", features = ["serde"] }
+log = "0.4"
+oauth2 = { version = "4", default-features = false }
+serde = "1"
+serde_json = "1"
+thiserror = "1"
+ureq = { version = "2.1", features = ["json"] }
+url = "2.2"
