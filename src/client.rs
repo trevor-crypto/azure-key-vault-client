@@ -1,7 +1,8 @@
 use ureq::Agent;
 use url::Url;
 
-use crate::client::identity::{IdentityConfig, Token};
+pub use crate::client::identity::IdentityConfig;
+use crate::client::identity::Token;
 use crate::client::types::EncryptionAlgorithm;
 
 pub mod types;
@@ -11,7 +12,7 @@ mod key;
 
 const API_VERSION: &str = "api-version=7.2";
 
-pub struct Client {
+pub struct KeyVaultClient {
     vault_url: Url,
     auth_scope: String,
     agent: Agent,
@@ -19,8 +20,8 @@ pub struct Client {
     access_token: Option<Token>,
 }
 
-impl Client {
-    pub fn new(vault_url: &str, identity_config: IdentityConfig) -> Result<Client, Error> {
+impl KeyVaultClient {
+    pub fn new(vault_url: &str, identity_config: IdentityConfig) -> Result<KeyVaultClient, Error> {
         let agent = ureq::AgentBuilder::new().build();
 
         let vault_url = Url::parse(vault_url)?;
@@ -74,7 +75,7 @@ mod tests {
         pub client_id: &'a str,
         pub client_secret: &'a str,
         pub tenant_id: &'a str,
-        // pub vault_name: &'a str,
+        pub vault_url: String,
         pub key_name: &'a str,
         pub key_version: &'a str,
     }
@@ -84,16 +85,16 @@ mod tests {
         let client_secret =
             option_env!("AZURE_KEYVAULT_CLIENT_SECRET").expect("client secret env var");
         let tenant_id = option_env!("AZURE_KEYVAULT_TENANT_ID").expect("tenant id env var");
-        // let vault_name = option_env!("AZURE_KEYVAULT_VAULT_NAME").expect("vault name
-        // env var");
+        let vault_name = option_env!("AZURE_KEYVAULT_VAULT_NAME").expect("vault name env var");
         let key_name = option_env!("AZURE_KEYVAULT_KEY_NAME").expect("key name env var");
         let key_version = option_env!("AZURE_KEYVAULT_KEY_VERSION").expect("key version env var");
 
+        let vault_url = format!("https://{}.vault.azure.net", vault_name);
         Env {
             client_id,
             client_secret,
             tenant_id,
-            // vault_name,
+            vault_url,
             key_name,
             key_version,
         }

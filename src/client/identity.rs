@@ -3,7 +3,7 @@ use oauth2::{url, AccessToken, ClientId, ClientSecret};
 use serde::{Deserialize, Deserializer};
 use ureq::Request;
 
-use crate::client::{Client, Error};
+use crate::client::{Error, KeyVaultClient};
 
 #[derive(Debug)]
 pub(crate) struct Token {
@@ -39,16 +39,12 @@ pub struct IdentityConfig {
 }
 
 impl IdentityConfig {
-    pub fn new(
-        client_id: &str,
-        client_secret: &str,
-        tenant_id: &str,
-    ) -> Result<IdentityConfig, Error> {
-        Ok(IdentityConfig {
+    pub fn new(client_id: &str, client_secret: &str, tenant_id: &str) -> IdentityConfig {
+        IdentityConfig {
             client_id: ClientId::new(client_id.to_string()),
             client_secret: ClientSecret::new(client_secret.to_string()),
             tenant_id: tenant_id.to_string(),
-        })
+        }
     }
 }
 
@@ -58,7 +54,7 @@ pub(crate) trait BearerAuthExt {
     fn set_auth(self, value: &str) -> Self;
 }
 
-impl Client {
+impl KeyVaultClient {
     pub(crate) fn bearer_auth(&self) -> String {
         // safe to unwrap cause is should be called after a refresh which sets
         // `access_token`
@@ -121,9 +117,9 @@ mod tests {
     #[test]
     fn test_get_access_token() {
         let env = get_env();
-        let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id).unwrap();
+        let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id);
 
-        let mut client = Client::new("https://vault-test-sign.vault.azure.net/", config).unwrap();
+        let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
         client.refresh_token_access().unwrap();
         assert!(client.access_token.is_some());
     }

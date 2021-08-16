@@ -1,3 +1,2 @@
-pub use client::{types, Client, Error};
-
+pub use client::{types, Error, IdentityConfig, KeyVaultClient};
 mod client;

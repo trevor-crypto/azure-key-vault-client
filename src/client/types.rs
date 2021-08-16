@@ -18,141 +18,182 @@ pub struct KeyVaultKey {
     pub key: JsonWebKey,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct KeyProperties {
+    #[serde(default)]
     pub attributes: KeyAttributes,
     /// True if the key's lifetime is managed by key vault. If this is a key
     /// backing a certificate, then managed will be true.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub managed: Option<bool>,
+    /// Whether to import as a hardware key (HSM) or software key.
+    #[serde(rename = "Hsm", skip_serializing_if = "Option::is_none")]
+    pub hsm: Option<bool>,
     /// Application specific metadata in the form of key-value pairs.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Map<String, Value>>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct KeyAttributes {
     /// Creation time in UTC.
-    #[serde(rename = "created", with = "ts_seconds_option", default)]
+    #[serde(
+        rename = "created",
+        with = "ts_seconds_option",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub created_on: Option<DateTime<Utc>>,
     /// Determines whether the object is enabled.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub enabled: Option<bool>,
     /// Expiry date in UTC.
-    #[serde(rename = "exp", with = "ts_seconds_option", default)]
+    #[serde(
+        rename = "exp",
+        with = "ts_seconds_option",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub expires_on: Option<DateTime<Utc>>,
     /// Not before date in UTC.
-    #[serde(rename = "nbf", with = "ts_seconds_option", default)]
+    #[serde(
+        rename = "nbf",
+        with = "ts_seconds_option",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub not_before: Option<DateTime<Utc>>,
     /// softDelete data retention days. Value should be >=7 and <=90 when
     /// softDelete enabled, otherwise 0.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub recoverable_days: Option<u8>,
     /// Reflects the deletion recovery level currently in effect for keys in the
     /// current vault. If it contains 'Purgeable' the key can be permanently
     /// deleted by a privileged user; otherwise, only the system can purge the
     /// key, at the end of the retention interval.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub recovery_level: Option<String>,
     /// Last updated time in UTC.
-    #[serde(rename = "updated", with = "ts_seconds_option", default)]
+    #[serde(
+        rename = "updated",
+        with = "ts_seconds_option",
+        default,
+        skip_serializing_if = "Option::is_none"
+    )]
     pub updated_on: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct JsonWebKey {
     /// Elliptic curve name. For valid values, see JsonWebKeyCurveName.
-    #[serde(rename = "crv")]
+    #[serde(rename = "crv", skip_serializing_if = "Option::is_none")]
     pub curve_name: Option<String>,
     /// RSA private exponent, or the D component of an EC private key.
     #[serde(
+        default,
+        skip_serializing_if = "Option::is_none",
         serialize_with = "ser_base64_opt",
         deserialize_with = "deser_base64_opt"
     )]
-    #[serde(default)]
     pub d: Option<Vec<u8>>,
     /// RSA private key parameter.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub dp: Option<Vec<u8>>,
     /// RSA private key parameter.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub dq: Option<Vec<u8>>,
     /// RSA public exponent.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub e: Option<Vec<u8>>,
     /// Symmetric key.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub k: Option<Vec<u8>>,
     /// HSM Token, used with 'Bring Your Own Key'.
     #[serde(
+        default,
+        rename = "key_hsm",
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
-    #[serde(rename = "key_hsm")]
     pub t: Option<Vec<u8>>,
     /// Supported key operations.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub key_ops: Option<Vec<String>>,
     /// Key identifier.
-    #[serde(rename = "kid")]
+    #[serde(rename = "kid", skip_serializing_if = "Option::is_none")]
     pub id: Option<String>,
     /// JsonWebKey Key Type (kty), as defined in https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-40.
     #[serde(rename = "kty")]
     pub key_type: String,
     /// RSA modulus.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub n: Option<Vec<u8>>,
     /// RSA secret prime.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub p: Option<Vec<u8>>,
     /// RSA secret prime, with p < q.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub q: Option<Vec<u8>>,
     /// RSA private key parameter.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub qi: Option<Vec<u8>>,
     /// X component of an EC public key.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub x: Option<Vec<u8>>,
     /// Y component of an EC public key.
     #[serde(
+        default,
         serialize_with = "ser_base64_opt",
-        deserialize_with = "deser_base64_opt"
+        deserialize_with = "deser_base64_opt",
+        skip_serializing_if = "Option::is_none"
     )]
-    #[serde(default)]
     pub y: Option<Vec<u8>>,
 }
 
