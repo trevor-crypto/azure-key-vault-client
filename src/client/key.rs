@@ -52,13 +52,14 @@ impl KeyVaultClient {
     }
 
     /// Creates a signature from a digest using the specified key.
+    /// `digest` must be the same hash used in `algorithm`.
     /// https://docs.microsoft.com/en-us/rest/api/keyvault/sign/sign
     pub fn sign(
         &mut self,
         algorithm: SignatureAlgorithm,
         key_name: &str,
         key_version: &str,
-        digest: &str,
+        digest: &[u8],
     ) -> Result<SignResult, Error> {
         self.refresh_token_access()?;
 
@@ -68,7 +69,7 @@ impl KeyVaultClient {
 
         let req = SignRequest {
             alg: algorithm,
-            value: digest.to_string(),
+            value: digest.to_vec(),
         };
 
         let json = serde_json::to_value(req)?;
@@ -132,6 +133,24 @@ mod tests {
 
         let key = serde_json::from_value::<KeyVaultKey>(json_key).unwrap();
         let res = client.import_key("test-key1", key);
+        println!("{:?}", res);
+        assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_sign() {
+        let env = get_env();
+        let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id);
+
+        let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
+
+        let digest = b"test message";
+        let res = client.sign(
+            SignatureAlgorithm::RSNULL,
+            env.key_name,
+            env.key_version,
+            digest,
+        );
         println!("{:?}", res);
         assert!(res.is_ok());
     }

@@ -245,7 +245,8 @@ where
 #[derive(Debug, Serialize)]
 pub struct SignRequest {
     pub alg: SignatureAlgorithm,
-    pub value: String,
+    #[serde(serialize_with = "ser_base64", deserialize_with = "deser_base64")]
+    pub value: Vec<u8>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -264,7 +265,6 @@ pub struct SignResult {
 
 /// The signing/verification algorithm identifier
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(untagged)]
 pub enum SignatureAlgorithm {
     ES256,  // ECDSA using P-256 and SHA-256, as described in https://tools.ietf.org/html/rfc7518.
     ES256K, // ECDSA using P-256K and SHA-256, as described in https://tools.ietf.org/html/rfc7518
@@ -276,18 +276,18 @@ pub enum SignatureAlgorithm {
     RS256, // RSASSA-PKCS1-v1_5 using SHA-256, as described in https://tools.ietf.org/html/rfc7518
     RS384, // RSASSA-PKCS1-v1_5 using SHA-384, as described in https://tools.ietf.org/html/rfc7518
     RS512, // RSASSA-PKCS1-v1_5 using SHA-512, as described in https://tools.ietf.org/html/rfc7518
-    Custom(String),
-}
-
-impl Default for SignatureAlgorithm {
-    fn default() -> Self {
-        SignatureAlgorithm::Custom("".to_string())
-    }
+    RSNULL,
 }
 
 impl Display for SignatureAlgorithm {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         Debug::fmt(self, f)
+    }
+}
+
+impl Default for SignatureAlgorithm {
+    fn default() -> Self {
+        SignatureAlgorithm::RSNULL
     }
 }
 
