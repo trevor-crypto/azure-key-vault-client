@@ -1,6 +1,7 @@
 use crate::client::identity::BearerAuthExt;
 use crate::client::types::{KeyVaultKey, SignRequest, SignResult, SignatureAlgorithm};
 use crate::client::{Error, KeyVaultClient, API_VERSION};
+use crate::types::{VerifyRequest, VerifyResult};
 
 impl KeyVaultClient {
     /// Gets the public part of a stored key.
@@ -81,6 +82,38 @@ impl KeyVaultClient {
             .into_json::<SignResult>()?;
         Ok(res)
     }
+
+    /// Verifies a signature using a specified key.
+    pub fn verify(
+        &mut self,
+        algorithm: SignatureAlgorithm,
+        key_name: &str,
+        key_version: &str,
+        digest: &[u8],
+        value: &[u8],
+    ) -> Result<bool, Error> {
+        self.refresh_token_access()?;
+
+        let mut path = self.vault_url.clone();
+        path.set_path(&format!("keys/{}/{}/verify", key_name, key_version));
+        path.set_query(Some(API_VERSION));
+
+        let req = VerifyRequest {
+            alg: algorithm,
+            digest: digest.to_vec(),
+            value: value.to_vec(),
+        };
+
+        let json = serde_json::to_value(req)?;
+        let res = self
+            .agent
+            .post(path.as_str())
+            .set_auth(&self.bearer_auth())
+            .send_json(json)?
+            .into_json::<VerifyResult>()?;
+
+        Ok(res.value)
+    }
 }
 
 #[cfg(test)]
@@ -153,5 +186,38 @@ mod tests {
         );
         println!("{:?}", res);
         assert!(res.is_ok());
+    }
+
+    #[test]
+    fn test_verify() {
+        let env = get_env();
+        let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id);
+
+        let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
+
+        let digest = b"test message";
+
+        let res = client
+            .sign(
+                SignatureAlgorithm::RSNULL,
+                env.key_name,
+                env.key_version,
+                digest,
+            )
+            .unwrap();
+
+        let signature = res.signature;
+
+        let res = client
+            .verify(
+                SignatureAlgorithm::RSNULL,
+                &env.key_name,
+                &env.key_version,
+                digest,
+                &signature,
+            )
+            .unwrap();
+        println!("{:?}", res);
+        assert!(res);
     }
 }

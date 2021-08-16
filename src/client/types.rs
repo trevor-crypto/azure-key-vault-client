@@ -263,6 +263,20 @@ pub struct SignResult {
     pub key_id: String,
 }
 
+#[derive(Debug, Serialize)]
+pub struct VerifyRequest {
+    pub alg: SignatureAlgorithm,
+    #[serde(serialize_with = "ser_base64", deserialize_with = "deser_base64")]
+    pub digest: Vec<u8>,
+    #[serde(serialize_with = "ser_base64", deserialize_with = "deser_base64")]
+    pub value: Vec<u8>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct VerifyResult {
+    pub value: bool,
+}
+
 /// The signing/verification algorithm identifier
 #[derive(Debug, Deserialize, Serialize)]
 pub enum SignatureAlgorithm {
