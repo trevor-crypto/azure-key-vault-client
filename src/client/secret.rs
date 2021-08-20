@@ -9,12 +9,16 @@ impl KeyVaultClient {
     pub fn get_secret(
         &mut self,
         secret_name: &str,
-        secret_version: &str,
+        secret_version: Option<&str>,
     ) -> Result<KeyVaultSecret, Error> {
         self.refresh_token_access()?;
 
         let mut path = self.vault_url.clone();
-        let rel = format!("secrets/{}/{}", secret_name, secret_version,);
+        let rel = if let Some(secret_version) = secret_version {
+            format!("secrets/{}/{}", secret_name, secret_version)
+        } else {
+            format!("secrets/{}", secret_name)
+        };
 
         path.set_path(&rel);
         path.set_query(Some(API_VERSION));
@@ -67,8 +71,6 @@ mod tests {
 
         let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
 
-        assert!(client
-            .get_secret(env.secret_name, env.secret_version)
-            .is_ok());
+        assert!(client.get_secret(env.secret_name, None).is_ok());
     }
 }
