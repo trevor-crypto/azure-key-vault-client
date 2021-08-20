@@ -23,7 +23,7 @@ pub struct KeyVaultKey {
 pub struct KeyVaultSecret {
     /// The key management properties.
     #[serde(flatten)]
-    pub properties: KeyProperties,
+    pub properties: SecretProperties,
     /// The secret value.
     pub value: String,
 }
