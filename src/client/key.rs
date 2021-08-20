@@ -41,7 +41,6 @@ impl KeyVaultClient {
         path.set_query(Some(API_VERSION));
 
         let json = serde_json::to_value(key)?;
-        println!("{:?}", json);
 
         let key = self
             .agent

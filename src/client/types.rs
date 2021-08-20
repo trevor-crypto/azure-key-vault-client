@@ -18,6 +18,16 @@ pub struct KeyVaultKey {
     pub key: JsonWebKey,
 }
 
+/// A SecretBundle consisting of a value, id and its attributes.
+#[derive(Debug, Deserialize, Serialize)]
+pub struct KeyVaultSecret {
+    /// The key management properties.
+    #[serde(flatten)]
+    pub properties: KeyProperties,
+    /// The secret value.
+    pub value: String,
+}
+
 #[derive(Debug, Default, Deserialize, Serialize)]
 pub struct KeyProperties {
     #[serde(default)]
@@ -29,6 +39,28 @@ pub struct KeyProperties {
     /// Whether to import as a hardware key (HSM) or software key.
     #[serde(rename = "Hsm", skip_serializing_if = "Option::is_none")]
     pub hsm: Option<bool>,
+    /// Application specific metadata in the form of key-value pairs.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub tags: Option<Map<String, Value>>,
+}
+
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub struct SecretProperties {
+    /// Same as KeyVaultKey
+    #[serde(default)]
+    pub attributes: KeyAttributes,
+    /// The content type of the secret.
+    #[serde(rename = "contentType")]
+    pub content_type: Option<String>,
+    /// The secret id
+    pub id: Option<String>,
+    /// If this is a secret backing a KV certificate, then this field specifies
+    /// the corresponding key backing the KV certificate.
+    pub kid: Option<String>,
+    /// True if the secret's lifetime is managed by key vault. If this is a
+    /// secret backing a certificate, then managed will be true.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub managed: Option<bool>,
     /// Application specific metadata in the form of key-value pairs.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Map<String, Value>>,

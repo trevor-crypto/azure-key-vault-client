@@ -9,6 +9,7 @@ pub mod types;
 
 mod identity;
 mod key;
+mod secret;
 
 const API_VERSION: &str = "api-version=7.2";
 
@@ -78,6 +79,8 @@ mod tests {
         pub vault_url: String,
         pub key_name: &'a str,
         pub key_version: &'a str,
+        pub secret_name: &'a str,
+        pub secret_version: &'a str,
     }
 
     pub(crate) fn get_env() -> Env<'static> {
@@ -88,6 +91,9 @@ mod tests {
         let vault_name = option_env!("AZURE_KEYVAULT_VAULT_NAME").expect("vault name env var");
         let key_name = option_env!("AZURE_KEYVAULT_KEY_NAME").expect("key name env var");
         let key_version = option_env!("AZURE_KEYVAULT_KEY_VERSION").expect("key version env var");
+        let secret_name = option_env!("AZURE_KEYVAULT_SECRET_NAME").expect("secret name env var");
+        let secret_version =
+            option_env!("AZURE_KEYVAULT_SECRET_VERSION").expect("secret version env var");
 
         let vault_url = format!("https://{}.vault.azure.net", vault_name);
         Env {
@@ -97,6 +103,8 @@ mod tests {
             vault_url,
             key_name,
             key_version,
+            secret_name,
+            secret_version,
         }
     }
 
