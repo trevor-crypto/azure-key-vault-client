@@ -19,13 +19,22 @@ pub struct KeyVaultKey {
 }
 
 /// A SecretBundle consisting of a value, id and its attributes.
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct KeyVaultSecret {
     /// The key management properties.
     #[serde(flatten)]
     pub properties: SecretProperties,
     /// The secret value.
     pub value: String,
+}
+
+impl Debug for KeyVaultSecret {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("KeyVaultSecret")
+            .field("properties", &self.properties)
+            .field("value", &"[secret]")
+            .finish()
+    }
 }
 
 #[derive(Debug, Default, Deserialize, Serialize)]
