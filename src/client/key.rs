@@ -210,8 +210,8 @@ mod tests {
         let res = client
             .verify(
                 SignatureAlgorithm::RSNULL,
-                &env.key_name,
-                &env.key_version,
+                env.key_name,
+                env.key_version,
                 digest,
                 &signature,
             )

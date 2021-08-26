@@ -22,19 +22,35 @@ pub struct KeyVaultClient {
 }
 
 impl KeyVaultClient {
-    pub fn new(vault_url: &str, identity_config: IdentityConfig) -> Result<KeyVaultClient, Error> {
+    pub fn with_resolver(
+        vault_url: &str,
+        identity_config: IdentityConfig,
+        resolver: impl ureq::Resolver + 'static,
+    ) -> Result<Self, Error> {
+        let agent = ureq::AgentBuilder::new().resolver(resolver).build();
+        let client = Self::_new(agent, vault_url, identity_config)?;
+        Ok(client)
+    }
+    pub fn new(vault_url: &str, identity_config: IdentityConfig) -> Result<Self, Error> {
         let agent = ureq::AgentBuilder::new().build();
+        let client = Self::_new(agent, vault_url, identity_config)?;
+        Ok(client)
+    }
 
+    pub fn _new(
+        agent: Agent,
+        vault_url: &str,
+        identity_config: IdentityConfig,
+    ) -> Result<Self, Error> {
         let vault_url = Url::parse(vault_url)?;
         let mut auth_scope = extract_endpoint(&vault_url)?;
         auth_scope.push_str("/.default");
-
         Ok(Self {
-            agent,
-            auth_scope,
             vault_url,
-            access_token: None,
+            auth_scope,
+            agent,
             identity_config,
+            access_token: None,
         })
     }
 }
@@ -80,7 +96,7 @@ mod tests {
         pub key_name: &'a str,
         pub key_version: &'a str,
         pub secret_name: &'a str,
-        pub secret_version: &'a str,
+        pub _secret_version: &'a str,
     }
 
     pub(crate) fn get_env() -> Env<'static> {
@@ -92,7 +108,7 @@ mod tests {
         let key_name = option_env!("AZURE_KEYVAULT_KEY_NAME").expect("key name env var");
         let key_version = option_env!("AZURE_KEYVAULT_KEY_VERSION").expect("key version env var");
         let secret_name = option_env!("AZURE_KEYVAULT_SECRET_NAME").expect("secret name env var");
-        let secret_version =
+        let _secret_version =
             option_env!("AZURE_KEYVAULT_SECRET_VERSION").expect("secret version env var");
 
         let vault_url = format!("https://{}.vault.azure.net", vault_name);
@@ -104,7 +120,7 @@ mod tests {
             key_name,
             key_version,
             secret_name,
-            secret_version,
+            _secret_version,
         }
     }
 
