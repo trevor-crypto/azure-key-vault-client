@@ -63,6 +63,7 @@ mod tests {
     use super::*;
     use crate::client::identity::IdentityConfig;
     use crate::client::tests::get_env;
+    use crate::types::SecretProperties;
 
     #[test]
     fn test_get_secret() {
@@ -72,5 +73,20 @@ mod tests {
         let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
 
         assert!(client.get_secret(env.secret_name, None).is_ok());
+    }
+
+    #[test]
+    #[ignore = "sets secret"]
+    fn test_set_secret() {
+        let env = get_env();
+        let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id);
+
+        let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
+
+        let secret = KeyVaultSecret {
+            properties: SecretProperties::default(),
+            value: "secret message".to_string(),
+        };
+        assert!(client.set_secret(env.secret_name, secret).is_ok());
     }
 }

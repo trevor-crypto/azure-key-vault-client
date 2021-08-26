@@ -120,6 +120,7 @@ mod tests {
         let config = IdentityConfig::new(env.client_id, env.client_secret, env.tenant_id);
 
         let mut client = KeyVaultClient::new(&env.vault_url, config).unwrap();
+        assert!(client.access_token.is_none());
         client.refresh_token_access().unwrap();
         assert!(client.access_token.is_some());
     }
