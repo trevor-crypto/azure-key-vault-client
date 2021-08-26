@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use base64::{CharacterSet, Config};
+use base64::URL_SAFE;
 use chrono::serde::ts_seconds_option;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -238,13 +238,11 @@ pub struct JsonWebKey {
     pub y: Option<Vec<u8>>,
 }
 
-const BASE64_URL_SAFE: Config = Config::new(CharacterSet::UrlSafe, false);
-
 fn ser_base64<S>(bytes: &[u8], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
-    let base_64 = base64::encode_config(bytes, BASE64_URL_SAFE);
+    let base_64 = base64::encode_config(bytes, URL_SAFE);
     serializer.serialize_str(&base_64)
 }
 
@@ -253,7 +251,7 @@ where
     S: Serializer,
 {
     if let Some(bytes) = bytes {
-        let base_64 = base64::encode_config(bytes, BASE64_URL_SAFE);
+        let base_64 = base64::encode_config(bytes, URL_SAFE);
         serializer.serialize_str(&base_64)
     } else {
         serializer.serialize_none()
@@ -265,7 +263,7 @@ where
     D: Deserializer<'de>,
 {
     let s = String::deserialize(deserializer)?;
-    let res = base64::decode_config(s, BASE64_URL_SAFE).map_err(serde::de::Error::custom)?;
+    let res = base64::decode_config(s, URL_SAFE).map_err(serde::de::Error::custom)?;
     Ok(res)
 }
 
@@ -275,9 +273,7 @@ where
 {
     let s: Option<String> = Option::deserialize(deserializer)?;
     let res = match s {
-        Some(s) => {
-            Some(base64::decode_config(s, BASE64_URL_SAFE).map_err(serde::de::Error::custom)?)
-        }
+        Some(s) => Some(base64::decode_config(s, URL_SAFE).map_err(serde::de::Error::custom)?),
         None => None,
     };
     Ok(res)
