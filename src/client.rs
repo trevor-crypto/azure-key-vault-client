@@ -13,6 +13,7 @@ mod secret;
 
 const API_VERSION: &str = "api-version=7.2";
 
+#[derive(Debug)]
 pub struct KeyVaultClient {
     vault_url: Url,
     auth_scope: String,
