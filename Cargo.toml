@@ -1,12 +1,12 @@
 [package]
 name = "azure-key-vault-client"
 description = "Thin sync client for Azure Key Vault"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 authors = ["Trevor Arjeski <trevor.arjeski@crypto.com>"]
 license = "MIT"
 readme = "README.md"
-keywords = ["azure-key-vault", "key-vault", "client"]
+keywords = ["sdk", "azure", "keyvault", "microsoft" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
