@@ -1,5 +1,5 @@
-![Crates.io](https://img.shields.io/crates/v/azure-key-vault-client?style=flat-square)
-![docs.rs](https://img.shields.io/docsrs/azure-key-vault-client?style=flat-square)
+[![Crates.io](https://img.shields.io/crates/v/azure-key-vault-client?style=flat-square)](https://crates.io/crates/azure-key-vault-client)
+[![docs.rs](https://img.shields.io/docsrs/azure-key-vault-client?style=flat-square)](https://docs.rs/azure-key-vault-client/0.1.1/azure_key_vault_client)
 
 # azure-key-vault-client
 Minimal Sync Client for Azure Key Vault
