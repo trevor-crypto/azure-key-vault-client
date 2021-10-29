@@ -6,6 +6,7 @@ edition = "2018"
 authors = ["Trevor Arjeski <trevor.arjeski@crypto.com>"]
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/trevor-crypto/azure-key-vault-client/"
 keywords = ["sdk", "azure", "keyvault", "microsoft" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
